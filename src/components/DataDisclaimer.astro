@@ -1,6 +1,17 @@
 ---
+interface Props {
+  lastUpdated?: string;
+}
+
+const { lastUpdated = "July 23, 2026 UTC" } = Astro.props;
 ---
-<div class="bg-amber-500/10 border-b border-amber-500/20 text-amber-900 dark:text-amber-200 px-4 py-2 text-xs text-center font-medium flex items-center justify-center gap-2 select-none">
-  <span>⚠️</span>
-  <span>Market data is delayed up to 24 hours. For educational/informational use only — not for trading or investment decisions.</span>
+<div class="bg-amber-500/10 border-b border-amber-500/20 text-amber-900 dark:text-amber-200 px-4 py-2 text-xs text-center font-medium flex items-center justify-center gap-3 select-none flex-wrap">
+  <span class="inline-flex items-center gap-1">
+    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+    <strong>Data delayed up to 24 hours</strong>
+  </span>
+  <span class="hidden sm:inline text-amber-500/50">•</span>
+  <span>Last updated: <time class="font-mono">{lastUpdated}</time></span>
+  <span class="hidden sm:inline text-amber-500/50">•</span>
+  <span>Informational snapshot only — not financial advice</span>
 </div>

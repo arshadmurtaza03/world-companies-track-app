@@ -44,9 +44,10 @@ export const WatchlistPage: React.FC<Props> = ({ allCompanies }) => {
           ★
         </div>
         <h2 className="text-xl font-bold text-[var(--color-text-primary)]">Your Watchlist is Empty</h2>
-        <p class="text-xs text-[var(--color-text-secondary)] leading-relaxed">
+        <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
           Bookmark companies across ranking tables and profile pages to track your favorite equities in one spot. Zero login required — stored locally in your browser.
         </p>
+
         <a
           href="/ranking/global"
           className="inline-block px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md transition-all scale-100 hover:scale-105"
