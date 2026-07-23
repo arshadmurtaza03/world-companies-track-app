@@ -1,23 +1,80 @@
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
-</html>
+---
+import Navbar from '../components/Navbar.astro';
+import MarketPulseBar from '../components/MarketPulseBar.astro';
+import Footer from '../components/Footer.astro';
+import CommandPalette from '../components/react/CommandPalette';
+import { getAllCompanies } from '../lib/data';
+import '../styles/global.css';
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  canonicalUrl?: string;
+}
+
+const {
+  title = 'World Companies by Market Cap — Global Stock Rankings',
+  description = 'Real-time rankings of world public companies by market cap, revenue, earnings, P/E ratio, dividends, and 16 metrics.',
+  ogImage = '/og/default.png',
+  canonicalUrl = Astro.url.href
+} = Astro.props;
+
+const companies = getAllCompanies();
+---
+
+<!doctype html>
+<html lang="en" class="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="canonical" href={canonicalUrl} />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <!-- Open Graph / Social Meta -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <!-- FOUC Theme Script -->
+    <script is:inline>
+      (function() {
+        try {
+          const stored = localStorage.getItem('theme');
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const isDark = stored === 'dark' || (!stored && prefersDark);
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
+          } else {
+            document.documentElement.classList.add('light');
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body class="bg-[var(--color-bg)] text-[var(--color-text-primary)] min-h-screen flex flex-col font-sans selection:bg-blue-500 selection:text-white">
+    <Navbar />
+    <MarketPulseBar />
+
+    <main class="flex-grow">
+      <slot />
+    </main>
+
+    <Footer />
+    <CommandPalette client:idle companies={companies} />
+  </body>
+</html>

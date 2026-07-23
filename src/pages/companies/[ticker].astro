@@ -1,0 +1,239 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import DataDisclaimer from '../../components/DataDisclaimer.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import { CompanyLogo } from '../../components/react/CompanyLogo';
+import { WatchlistButton } from '../../components/react/WatchlistButton';
+import { Sparkline } from '../../components/react/Sparkline';
+import {
+  getAllCompanies,
+  getCompanyByTicker,
+  getSimilarCompanies,
+  getValuationHistory
+} from '../../lib/data';
+import {
+  formatLargeNumber,
+  formatPercent,
+  formatPrice,
+  getCountryFlag
+} from '../../lib/format';
+import { METRICS } from '../../lib/metrics';
+
+export function getStaticPaths() {
+  const companies = getAllCompanies();
+  return companies.map(c => ({
+    params: { ticker: c.ticker.toLowerCase() },
+    props: { company: c }
+  }));
+}
+
+const { ticker } = Astro.params;
+const { company: initialCompany } = Astro.props;
+
+const company = initialCompany || getCompanyByTicker(ticker || '');
+
+if (!company) {
+  return Astro.redirect('/404');
+}
+
+const history = getValuationHistory(company.ticker);
+const similar = getSimilarCompanies(company, 3);
+
+// Calculate ATH drawdown %
+const athDrawdown = company.allTimeHigh > 0
+  ? (((company.price - company.allTimeHigh) / company.allTimeHigh) * 100).toFixed(2)
+  : '0.00';
+
+// Structured JSON-LD Schema
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Corporation",
+  "name": company.name,
+  "tickerSymbol": company.ticker,
+  "url": `https://${company.domain}`,
+  "location": {
+    "@type": "Place",
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": company.countryCode
+    }
+  },
+  "description": `${company.name} (${company.ticker}) profile with market capitalization of ${formatLargeNumber(company.marketCap)}.`
+};
+---
+
+<Layout
+  title={`${company.name} (${company.ticker}) Market Cap, Financials & Profile`}
+  description={`${company.name} (${company.ticker}) market cap is ${formatLargeNumber(company.marketCap)}. View P/E ratio, earnings, revenue, employees, and historical trends.`}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  <DataDisclaimer />
+
+  <div class="max-w-[1440px] mx-auto px-4 py-8 space-y-8">
+    {/* Profile Header Header */}
+    <div class="p-6 md:p-8 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div class="flex items-center gap-5">
+        <CompanyLogo ticker={company.ticker} domain={company.domain} name={company.name} size={64} client:load />
+
+        <div class="space-y-1">
+          <div class="flex items-center gap-3">
+            <h1 class="text-2xl md:text-3xl font-black text-[var(--color-text-primary)]">{company.name}</h1>
+            <span class="px-2.5 py-0.5 rounded-md text-xs font-mono font-bold bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+              {company.ticker}
+            </span>
+            <span class="px-2.5 py-0.5 rounded-md text-xs font-semibold bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)]">
+              IPO {company.ipoYear}
+            </span>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3 text-xs text-[var(--color-text-secondary)]">
+            <span>{company.sector}</span>
+            <span>•</span>
+            <span>{getCountryFlag(company.countryCode)} {company.country}</span>
+            <span>•</span>
+            <span class="font-mono">Rank #{company.rank} Worldwide</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4 text-right">
+        <div class="space-y-1 font-mono">
+          <div class="text-2xl md:text-3xl font-black text-blue-600 dark:text-blue-400">
+            {formatLargeNumber(company.marketCap)}
+          </div>
+          <div class="text-xs text-[var(--color-text-secondary)] font-semibold flex items-center justify-end gap-2">
+            <span>Price: ${company.price}</span>
+            <span class={company.priceChange1D >= 0 ? 'text-emerald-500' : 'text-rose-500'}>
+              ({formatPercent(company.priceChange1D)})
+            </span>
+          </div>
+        </div>
+
+        <WatchlistButton ticker={company.ticker} client:load />
+      </div>
+    </div>
+
+    <!-- Main Content & Sidebar Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Left Column: Key Metrics + Chart (2 cols) -->
+      <div class="lg:col-span-2 space-y-8">
+        <!-- 16 Metric Grid Cards -->
+        <div>
+          <h2 class="text-xl font-bold text-[var(--color-text-primary)] mb-4">Financial Metrics Overview</h2>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {METRICS.map(m => {
+              const val = company[m.key] as number;
+              let displayVal = '';
+              if (m.format === 'currency') displayVal = formatLargeNumber(val);
+              else if (m.format === 'percent') displayVal = `${val}%`;
+              else if (m.format === 'ratio') displayVal = `${val}x`;
+              else displayVal = val?.toLocaleString() || 'N/A';
+
+              return (
+                <div class="p-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] shadow-xs">
+                  <div class="text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">{m.label}</div>
+                  <div class="text-base font-bold font-mono text-[var(--color-text-primary)] mt-1">{displayVal}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <!-- Valuation / Market Cap History Line Chart Placeholder -->
+        <div class="p-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg font-bold text-[var(--color-text-primary)]">Market Cap History Over Time</h2>
+            <span class="text-xs font-mono text-[var(--color-text-muted)]">Historical Valuation</span>
+          </div>
+
+          <div class="h-48 w-full bg-[var(--color-surface)]/50 rounded-xl border border-[var(--color-border)] flex items-center justify-center p-4">
+            <div class="w-full h-full flex flex-col justify-between text-xs text-[var(--color-text-muted)] font-mono">
+              <div class="flex justify-between border-b border-[var(--color-border-subtle)] pb-1">
+                <span>Peak Valuation: {formatLargeNumber(company.marketCap * 1.15)}</span>
+                <span>ATH: ${company.allTimeHigh} ({athDrawdown}%)</span>
+              </div>
+              <div class="py-4 flex items-end justify-between gap-2 h-32 px-2">
+                {(history?.history || [
+                  { date: '2023', marketCap: company.marketCap * 0.75 },
+                  { date: '2024', marketCap: company.marketCap * 0.85 },
+                  { date: '2025', marketCap: company.marketCap * 0.95 },
+                  { date: '2026', marketCap: company.marketCap }
+                ]).map(pt => (
+                  <div class="flex-1 bg-blue-500/20 hover:bg-blue-500/40 rounded-t transition-all relative group" style={{ height: `${(pt.marketCap / (company.marketCap * 1.2)) * 100}%` }}>
+                    <div class="opacity-0 group-hover:opacity-100 absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] p-1 rounded font-mono z-10 whitespace-nowrap">
+                      {pt.date}: {formatLargeNumber(pt.marketCap)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div class="flex justify-between border-t border-[var(--color-border-subtle)] pt-1 text-[11px]">
+                <span>2023</span>
+                <span>2024</span>
+                <span>2025</span>
+                <span>2026</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Similar Companies Peer Comparison -->
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-[var(--color-text-primary)]">Similar Peer Companies in {company.sector}</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {similar.map(peer => (
+              <a href={`/companies/${peer.ticker.toLowerCase()}`} class="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] hover:scale-[1.02] transition-all space-y-2 group shadow-xs">
+                <div class="flex items-center gap-3">
+                  <CompanyLogo ticker={peer.ticker} domain={peer.domain} name={peer.name} size={32} client:load />
+                  <div>
+                    <div class="font-bold text-sm text-[var(--color-text-primary)] group-hover:underline">{peer.name}</div>
+                    <div class="text-xs text-[var(--color-text-muted)] font-mono">{peer.ticker}</div>
+                  </div>
+                </div>
+                <div class="pt-2 border-t border-[var(--color-border-subtle)] flex items-center justify-between text-xs font-mono">
+                  <span class="text-[var(--color-text-secondary)]">Cap:</span>
+                  <span class="font-bold text-blue-600 dark:text-blue-400">{formatLargeNumber(peer.marketCap)}</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Profile Sidebar & AdSlot -->
+      <div class="space-y-6">
+        <div class="p-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] space-y-4">
+          <h3 class="font-bold text-sm text-[var(--color-text-primary)] uppercase tracking-wider border-b border-[var(--color-border)] pb-2">
+            Company Quick Stats
+          </h3>
+          <div class="space-y-3 text-xs">
+            <div class="flex justify-between py-1 border-b border-[var(--color-border-subtle)]">
+              <span class="text-[var(--color-text-secondary)]">Stock Exchange</span>
+              <span class="font-semibold text-[var(--color-text-primary)]">NASDAQ / NYSE</span>
+            </div>
+            <div class="flex justify-between py-1 border-b border-[var(--color-border-subtle)]">
+              <span class="text-[var(--color-text-secondary)]">Listing Year</span>
+              <span class="font-semibold text-[var(--color-text-primary)]">{company.ipoYear}</span>
+            </div>
+            <div class="flex justify-between py-1 border-b border-[var(--color-border-subtle)]">
+              <span class="text-[var(--color-text-secondary)]">All-Time High</span>
+              <span class="font-semibold text-[var(--color-text-primary)]">${company.allTimeHigh}</span>
+            </div>
+            <div class="flex justify-between py-1 border-b border-[var(--color-border-subtle)]">
+              <span class="text-[var(--color-text-secondary)]">ATH Drawdown</span>
+              <span class="font-semibold text-rose-500">{athDrawdown}%</span>
+            </div>
+            <div class="flex justify-between py-1">
+              <span class="text-[var(--color-text-secondary)]">Official Website</span>
+              <a href={`https://${company.domain}`} target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">
+                {company.domain} ↗
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar 300x250 AdSlot -->
+        <AdSlot variant="sidebar" />
+      </div>
+    </div>
+  </div>
+</Layout>

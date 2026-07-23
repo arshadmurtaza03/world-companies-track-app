@@ -1,0 +1,38 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import DataDisclaimer from '../../components/DataDisclaimer.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import { RankingTable } from '../../components/react/RankingTable';
+import { getAllCompanies } from '../../lib/data';
+
+const companies = getAllCompanies();
+---
+
+<Layout
+  title="Global Company Rankings by Market Cap & Financial Metrics (2026)"
+  description="Master interactive ranking engine for global public companies sorted by Market Cap, Revenue, Earnings, P/E Ratio, Dividend %, and 16 financial metrics."
+>
+  <DataDisclaimer />
+
+  <div class="max-w-[1440px] mx-auto px-4 py-8 space-y-6">
+    <div class="space-y-2">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-semibold">
+        <span>📊 Master Rank Engine</span>
+        <span>•</span>
+        <span>Multi-Metric Sorting</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-black tracking-tight text-[var(--color-text-primary)]">
+        Largest Public Companies by Market Cap
+      </h1>
+      <p class="text-sm text-[var(--color-text-secondary)] max-w-3xl">
+        Filter and rank the world's largest companies by financial performance. Switch sorting metrics, select countries or sectors, and download custom table datasets.
+      </p>
+    </div>
+
+    <!-- Master Ranking Table React Island -->
+    <RankingTable client:load companies={companies} />
+
+    <AdSlot variant="banner" />
+  </div>
+</Layout>

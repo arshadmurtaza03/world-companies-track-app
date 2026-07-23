@@ -1,0 +1,12 @@
+[
+  { "rank": 1, "ticker": "SPY", "name": "SPDR S&P 500 ETF Trust", "aum": 560000000000, "expenseRatio": 0.09, "category": "Large Cap Blend", "country": "United States", "price": 552.4, "priceChange1D": 0.35 },
+  { "rank": 2, "ticker": "VOO", "name": "Vanguard S&P 500 ETF", "aum": 510000000000, "expenseRatio": 0.03, "category": "Large Cap Blend", "country": "United States", "price": 508.2, "priceChange1D": 0.36 },
+  { "rank": 3, "ticker": "VTI", "name": "Vanguard Total Stock Market ETF", "aum": 420000000000, "expenseRatio": 0.03, "category": "Large Cap Blend", "country": "United States", "price": 274.1, "priceChange1D": 0.28 },
+  { "rank": 4, "ticker": "QQQ", "name": "Invesco QQQ Trust", "aum": 285000000000, "expenseRatio": 0.20, "category": "Large Cap Growth", "country": "United States", "price": 482.5, "priceChange1D": 0.85 },
+  { "rank": 5, "ticker": "IVV", "name": "iShares Core S&P 500 ETF", "aum": 490000000000, "expenseRatio": 0.03, "category": "Large Cap Blend", "country": "United States", "price": 554.8, "priceChange1D": 0.34 },
+  { "rank": 6, "ticker": "VEA", "name": "Vanguard FTSE Developed Markets ETF", "aum": 128000000000, "expenseRatio": 0.06, "category": "Foreign Large Blend", "country": "Global", "price": 51.2, "priceChange1D": -0.15 },
+  { "rank": 7, "ticker": "IEFA", "name": "iShares Core MSCI EAFE ETF", "aum": 115000000000, "expenseRatio": 0.07, "category": "Foreign Large Blend", "country": "Global", "price": 74.8, "priceChange1D": -0.12 },
+  { "rank": 8, "ticker": "VUG", "name": "Vanguard Growth ETF", "aum": 122000000000, "expenseRatio": 0.04, "category": "Large Cap Growth", "country": "United States", "price": 384.0, "priceChange1D": 0.72 },
+  { "rank": 9, "ticker": "VTV", "name": "Vanguard Value ETF", "aum": 118000000000, "expenseRatio": 0.04, "category": "Large Cap Value", "country": "United States", "price": 162.5, "priceChange1D": -0.10 },
+  { "rank": 10, "ticker": "BND", "name": "Vanguard Total Bond Market ETF", "aum": 110000000000, "expenseRatio": 0.03, "category": "Intermediate Core Bond", "country": "United States", "price": 73.1, "priceChange1D": 0.05 }
+]

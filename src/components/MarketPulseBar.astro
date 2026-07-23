@@ -1,0 +1,38 @@
+---
+import { getAllCompanies, getTopMovers } from '../lib/data';
+import { formatLargeNumber, formatPercent } from '../lib/format';
+
+const companies = getAllCompanies();
+const totalMarketCap = companies.reduce((acc, c) => acc + c.marketCap, 0);
+const topGainer = getTopMovers('gainers', 1)[0];
+---
+
+<div class="w-full bg-[var(--color-bg-alt)] border-b border-[var(--color-border)] py-1.5 px-4 overflow-x-auto scrollbar-none text-xs font-mono text-[var(--color-text-secondary)] select-none">
+  <div class="max-w-[1440px] mx-auto flex items-center justify-between whitespace-nowrap gap-6">
+    <div class="flex items-center gap-6">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="font-semibold text-[var(--color-text-primary)]">Global Market Cap:</span>
+        <span class="font-bold text-blue-600 dark:text-blue-400">{formatLargeNumber(totalMarketCap)}</span>
+      </div>
+
+      <div class="hidden sm:flex items-center gap-2">
+        <span>Top Mover:</span>
+        <a href={`/companies/${topGainer.ticker.toLowerCase()}`} class="font-bold text-[var(--color-text-primary)] hover:underline flex items-center gap-1">
+          {topGainer.name} ({topGainer.ticker})
+          <span class="text-emerald-500">{formatPercent(topGainer.priceChange1D)}</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-4 text-[11px] text-[var(--color-text-muted)]">
+      <span>USD/EUR 0.92</span>
+      <span>•</span>
+      <span>USD/INR 86.50</span>
+      <span>•</span>
+      <span>USD/GBP 0.78</span>
+      <span>•</span>
+      <span>USD/JPY 155.20</span>
+    </div>
+  </div>
+</div>

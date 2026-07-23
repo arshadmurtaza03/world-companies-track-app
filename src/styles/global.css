@@ -1,0 +1,97 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+/* === DESIGN TOKENS via Tailwind v4 @theme === */
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  
+  /* Spacing & Sizing */
+  --container-max-width: 1440px;
+  
+  /* Accent Colors */
+  --color-accent: #2563EB;
+  --color-accent-hover: #1D4ED8;
+  --color-accent-light: #DBEAFE;
+  --color-positive: #16A34A;
+  --color-negative: #DC2626;
+}
+
+/* === LIGHT MODE (default) === */
+:root {
+  --color-bg: #FFFFFF;
+  --color-bg-alt: #F9FAFB;
+  --color-surface: #F3F4F6;
+  --color-surface-hover: #E5E7EB;
+  --color-border: #E5E7EB;
+  --color-border-subtle: #F3F4F6;
+  --color-text-primary: #111827;
+  --color-text-secondary: #6B7280;
+  --color-text-muted: #9CA3AF;
+  --color-text-inverse: #FFFFFF;
+  --color-navbar-bg: rgba(255, 255, 255, 0.85);
+  --color-navbar-border: #E5E7EB;
+}
+
+/* === DARK MODE === */
+.dark {
+  --color-bg: #000000;
+  --color-bg-alt: #0A0A0A;
+  --color-surface: #111111;
+  --color-surface-hover: #1A1A1A;
+  --color-border: #222222;
+  --color-border-subtle: #1A1A1A;
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #A1A1AA;
+  --color-text-muted: #71717A;
+  --color-text-inverse: #000000;
+  --color-navbar-bg: rgba(0, 0, 0, 0.85);
+  --color-navbar-border: #222222;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --color-bg: #000000;
+    --color-bg-alt: #0A0A0A;
+    --color-surface: #111111;
+    --color-surface-hover: #1A1A1A;
+    --color-border: #222222;
+    --color-border-subtle: #1A1A1A;
+    --color-text-primary: #FFFFFF;
+    --color-text-secondary: #A1A1AA;
+    --color-text-muted: #71717A;
+    --color-text-inverse: #000000;
+    --color-navbar-bg: rgba(0, 0, 0, 0.85);
+    --color-navbar-border: #222222;
+  }
+}
+
+/* === BASE STYLES === */
+html {
+  font-family: var(--font-sans);
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  transition: background-color 200ms ease, color 200ms ease;
+  margin: 0;
+  min-height: 100vh;
+}
+
+/* Theme transition for all themed elements */
+*, *::before, *::after {
+  transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--color-bg-alt); }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}

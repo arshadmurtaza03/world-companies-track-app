@@ -1,0 +1,30 @@
+[
+  {
+    "ticker": "AAPL",
+    "history": [
+      { "date": "2023-07", "marketCap": 3000000000000, "price": 195.0 },
+      { "date": "2023-10", "marketCap": 2700000000000, "price": 173.0 },
+      { "date": "2024-01", "marketCap": 2950000000000, "price": 192.5 },
+      { "date": "2024-04", "marketCap": 2650000000000, "price": 169.0 },
+      { "date": "2024-07", "marketCap": 3400000000000, "price": 224.0 },
+      { "date": "2024-10", "marketCap": 3520000000000, "price": 230.5 },
+      { "date": "2025-01", "marketCap": 3600000000000, "price": 235.0 },
+      { "date": "2025-04", "marketCap": 3350000000000, "price": 218.0 },
+      { "date": "2025-07", "marketCap": 3480000000000, "price": 226.5 },
+      { "date": "2026-07", "marketCap": 3450000000000, "price": 224.5 }
+    ]
+  },
+  {
+    "ticker": "NVDA",
+    "history": [
+      { "date": "2023-07", "marketCap": 1100000000000, "price": 45.0 },
+      { "date": "2023-10", "marketCap": 1050000000000, "price": 42.5 },
+      { "date": "2024-01", "marketCap": 1400000000000, "price": 56.0 },
+      { "date": "2024-04", "marketCap": 2200000000000, "price": 88.0 },
+      { "date": "2024-07", "marketCap": 3100000000000, "price": 125.0 },
+      { "date": "2024-10", "marketCap": 3400000000000, "price": 138.0 },
+      { "date": "2025-01", "marketCap": 3500000000000, "price": 142.0 },
+      { "date": "2025-07", "marketCap": 3320000000000, "price": 135.2 }
+    ]
+  }
+]

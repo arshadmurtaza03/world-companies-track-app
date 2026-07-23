@@ -1,0 +1,20 @@
+---
+interface Props {
+  variant?: 'banner' | 'sidebar' | 'inline';
+}
+
+const { variant = 'banner' } = Astro.props;
+
+let dimensions = 'w-full min-h-[90px] max-w-[728px]';
+if (variant === 'sidebar') dimensions = 'w-[300px] min-h-[250px]';
+if (variant === 'inline') dimensions = 'w-full min-h-[90px]';
+---
+
+<div class={`mx-auto my-6 flex flex-col items-center justify-center p-3 border border-dashed border-[var(--color-border)] rounded-xl bg-[var(--color-surface)]/40 ${dimensions}`}>
+  <span class="text-[10px] uppercase font-mono tracking-wider text-[var(--color-text-muted)] font-semibold">
+    Advertisement Placeholder
+  </span>
+  <span class="text-[11px] text-[var(--color-text-muted)] mt-0.5">
+    {variant === 'sidebar' ? '300 × 250 Banner' : '728 × 90 Leaderboard'}
+  </span>
+</div>
