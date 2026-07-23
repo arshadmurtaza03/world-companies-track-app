@@ -17,7 +17,6 @@ import {
   formatPrice,
   getCountryFlag
 } from '../../lib/format';
-import { METRICS } from '../../lib/metrics';
 
 export function getStaticPaths() {
   const companies = getAllCompanies();
@@ -37,7 +36,7 @@ if (!company) {
 }
 
 const history = getValuationHistory(company.ticker);
-const similar = getSimilarCompanies(company, 3);
+const similar = getSimilarCompanies(company, 4);
 
 // Calculate ATH drawdown %
 const athDrawdown = company.allTimeHigh > 0
@@ -63,14 +62,30 @@ const jsonLd = {
 ---
 
 <Layout
-  title={`${company.name} (${company.ticker}) Market Cap, Financials & Profile`}
-  description={`${company.name} (${company.ticker}) market cap is ${formatLargeNumber(company.marketCap)}. View P/E ratio, earnings, revenue, employees, and historical trends.`}
+  title={`${company.name} (${company.ticker}) Market Cap, Financials & Key Metrics`}
+  description={`${company.name} (${company.ticker}) market cap is ${formatLargeNumber(company.marketCap)}. View P/E ratio, earnings, revenue, employees, dividend yield, and peer comparisons.`}
 >
   <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   <DataDisclaimer />
 
-  <div class="max-w-[1440px] mx-auto px-4 py-8 space-y-8">
-    {/* Profile Header Header */}
+  <div class="max-w-[1440px] mx-auto px-4 py-6 space-y-6">
+    <!-- Breadcrumb & Data Freshness Bar -->
+    <div class="flex flex-wrap items-center justify-between gap-3 text-xs text-[var(--color-text-muted)] font-mono border-b border-[var(--color-border)] pb-3">
+      <div class="flex items-center gap-2">
+        <a href="/" class="hover:underline">Home</a>
+        <span>/</span>
+        <a href="/ranking/global" class="hover:underline">Rankings</a>
+        <span>/</span>
+        <span class="text-[var(--color-text-primary)] font-bold">{company.name} ({company.ticker})</span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span>Snapshot status: <strong>Sourced Snapshot</strong> (July 23, 2026)</span>
+      </div>
+    </div>
+
+    <!-- Company Profile Header Card -->
     <div class="p-6 md:p-8 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
       <div class="flex items-center gap-5">
         <CompanyLogo ticker={company.ticker} domain={company.domain} name={company.name} size={64} client:load />
@@ -87,11 +102,11 @@ const jsonLd = {
           </div>
 
           <div class="flex flex-wrap items-center gap-3 text-xs text-[var(--color-text-secondary)]">
-            <span>{company.sector}</span>
+            <span>Sector: <strong>{company.sector}</strong></span>
             <span>•</span>
-            <span>{getCountryFlag(company.countryCode)} {company.country}</span>
+            <span>{getCountryFlag(company.countryCode)} <strong>{company.country}</strong></span>
             <span>•</span>
-            <span class="font-mono">Rank #{company.rank} Worldwide</span>
+            <span class="font-mono text-amber-600 dark:text-amber-400 font-bold">Rank #{company.rank} Worldwide</span>
           </div>
         </div>
       </div>
@@ -104,7 +119,7 @@ const jsonLd = {
           <div class="text-xs text-[var(--color-text-secondary)] font-semibold flex items-center justify-end gap-2">
             <span>Price: ${company.price}</span>
             <span class={company.priceChange1D >= 0 ? 'text-emerald-500' : 'text-rose-500'}>
-              ({formatPercent(company.priceChange1D)})
+              ({company.priceChange1D >= 0 ? '▲' : '▼'} {formatPercent(company.priceChange1D)})
             </span>
           </div>
         </div>
@@ -115,41 +130,120 @@ const jsonLd = {
 
     <!-- Main Content & Sidebar Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Left Column: Key Metrics + Chart (2 cols) -->
+      <!-- Left Column: Categorized Financial Metrics & Peer Table (2 cols) -->
       <div class="lg:col-span-2 space-y-8">
-        <!-- 16 Metric Grid Cards -->
-        <div>
-          <h2 class="text-xl font-bold text-[var(--color-text-primary)] mb-4">Financial Metrics Overview</h2>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {METRICS.map(m => {
-              const val = company[m.key] as number;
-              let displayVal = '';
-              if (m.format === 'currency') displayVal = formatLargeNumber(val);
-              else if (m.format === 'percent') displayVal = `${val}%`;
-              else if (m.format === 'ratio') displayVal = `${val}x`;
-              else displayVal = val?.toLocaleString() || 'N/A';
+        
+        <!-- Categorized Financial Metrics -->
+        <div class="space-y-6">
+          <div class="flex items-center justify-between border-b border-[var(--color-border)] pb-2">
+            <h2 class="text-lg font-bold text-[var(--color-text-primary)]">Key Financial & Operational Metrics</h2>
+            <span class="text-xs font-mono text-[var(--color-text-muted)]">Source: Sourced Financial Snapshot</span>
+          </div>
 
-              return (
-                <div class="p-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] shadow-xs">
-                  <div class="text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">{m.label}</div>
-                  <div class="text-base font-bold font-mono text-[var(--color-text-primary)] mt-1">{displayVal}</div>
-                </div>
-              );
-            })}
+          <!-- Category 1: Valuation & Multiples -->
+          <div class="space-y-2">
+            <h3 class="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Valuation & Multiples</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]">
+                <div class="text-[11px] text-[var(--color-text-muted)]">Market Cap</div>
+                <div class="text-sm font-bold font-mono text-[var(--color-text-primary)] mt-0.5">{formatLargeNumber(company.marketCap)}</div>
+              </div>
+              <div class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]">
+                <div class="text-[11px] text-[var(--color-text-muted)]">P/E Ratio</div>
+                <div class="text-sm font-bold font-mono text-[var(--color-text-primary)] mt-0.5">{company.peRatio}x</div>
+              </div>
+              <div class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]">
+                <div class="text-[11px] text-[var(--color-text-muted)]">P/S Ratio</div>
+                <div class="text-sm font-bold font-mono text-[var(--color-text-primary)] mt-0.5">{company.psRatio}x</div>
+              </div>
+              <div class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]">
+                <div class="text-[11px] text-[var(--color-text-muted)]">P/B Ratio</div>
+                <div class="text-sm font-bold font-mono text-[var(--color-text-primary)] mt-0.5">{company.pbRatio}x</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category 2: Financial Performance -->
+          <div class="space-y-2">
+            <h3 class="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Financial Performance</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]">
+                <div class="text-[11px] text-[var(--color-text-muted)]">Revenue (TTM)</div>
+                <div class="text-sm font-bold font-mono text-[var(--color-text-primary)] mt-0.5">{formatLargeNumber(company.revenue)}</div>
+              </div>
+              <div class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]">
+                <div class="text-[11px] text-[var(--color-text-muted)]">Net Income / Earnings</div>
+                <div class="text-sm font-bold font-mono text-[var(--color-text-primary)] mt-0.5">{formatLargeNumber(company.earnings)}</div>
+              </div>
+              <div class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]">
+                <div class="text-[11px] text-[var(--color-text-muted)]">Operating Margin</div>
+                <div class="text-sm font-bold font-mono text-[var(--color-text-primary)] mt-0.5">{company.operatingMargin}%</div>
+              </div>
+              <div class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]">
+                <div class="text-[11px] text-[var(--color-text-muted)]">Net Profit Margin</div>
+                <div class="text-sm font-bold font-mono text-[var(--color-text-primary)] mt-0.5">{company.profitMargin}%</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category 3: Capital & Dividends -->
+          <div class="space-y-2">
+            <h3 class="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Capital & Yields</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]">
+                <div class="text-[11px] text-[var(--color-text-muted)]">Free Cash Flow</div>
+                <div class="text-sm font-bold font-mono text-[var(--color-text-primary)] mt-0.5">{formatLargeNumber(company.freeCashFlow)}</div>
+              </div>
+              <div class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]">
+                <div class="text-[11px] text-[var(--color-text-muted)]">Dividend Yield</div>
+                <div class="text-sm font-bold font-mono text-[var(--color-text-primary)] mt-0.5">{company.dividendYield}%</div>
+              </div>
+              <div class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]">
+                <div class="text-[11px] text-[var(--color-text-muted)]">Total Debt</div>
+                <div class="text-sm font-bold font-mono text-[var(--color-text-primary)] mt-0.5">{formatLargeNumber(company.totalDebt)}</div>
+              </div>
+              <div class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]">
+                <div class="text-[11px] text-[var(--color-text-muted)]">Cash & Equivalents</div>
+                <div class="text-sm font-bold font-mono text-[var(--color-text-primary)] mt-0.5">{formatLargeNumber(company.cashAndEquivalents)}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category 4: Workforce & Return Multiples -->
+          <div class="space-y-2">
+            <h3 class="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Workforce & Return Ratios</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]">
+                <div class="text-[11px] text-[var(--color-text-muted)]">Employees</div>
+                <div class="text-sm font-bold font-mono text-[var(--color-text-primary)] mt-0.5">{company.employees?.toLocaleString()}</div>
+              </div>
+              <div class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]">
+                <div class="text-[11px] text-[var(--color-text-muted)]">Rev / Employee</div>
+                <div class="text-sm font-bold font-mono text-[var(--color-text-primary)] mt-0.5">{formatLargeNumber(company.revenuePerEmployee)}</div>
+              </div>
+              <div class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]">
+                <div class="text-[11px] text-[var(--color-text-muted)]">Return on Equity (ROE)</div>
+                <div class="text-sm font-bold font-mono text-[var(--color-text-primary)] mt-0.5">{company.roe}%</div>
+              </div>
+              <div class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]">
+                <div class="text-[11px] text-[var(--color-text-muted)]">Market Cap Gain (1Y)</div>
+                <div class="text-sm font-bold font-mono text-[var(--color-text-primary)] mt-0.5">{formatLargeNumber(company.marketCapGain1Y)}</div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Valuation / Market Cap History Line Chart Placeholder -->
+        <!-- Valuation / Market Cap History Line Chart -->
         <div class="p-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] space-y-4">
           <div class="flex items-center justify-between">
-            <h2 class="text-lg font-bold text-[var(--color-text-primary)]">Market Cap History Over Time</h2>
-            <span class="text-xs font-mono text-[var(--color-text-muted)]">Historical Valuation</span>
+            <h2 class="text-lg font-bold text-[var(--color-text-primary)]">Valuation Trajectory (Market Cap History)</h2>
+            <span class="text-xs font-mono text-[var(--color-text-muted)]">Annual Snapshot</span>
           </div>
 
           <div class="h-48 w-full bg-[var(--color-surface)]/50 rounded-xl border border-[var(--color-border)] flex items-center justify-center p-4">
             <div class="w-full h-full flex flex-col justify-between text-xs text-[var(--color-text-muted)] font-mono">
               <div class="flex justify-between border-b border-[var(--color-border-subtle)] pb-1">
-                <span>Peak Valuation: {formatLargeNumber(company.marketCap * 1.15)}</span>
+                <span>Current: {formatLargeNumber(company.marketCap)}</span>
                 <span>ATH: ${company.allTimeHigh} ({athDrawdown}%)</span>
               </div>
               <div class="py-4 flex items-end justify-between gap-2 h-32 px-2">
@@ -159,7 +253,7 @@ const jsonLd = {
                   { date: '2025', marketCap: company.marketCap * 0.95 },
                   { date: '2026', marketCap: company.marketCap }
                 ]).map(pt => (
-                  <div class="flex-1 bg-blue-500/20 hover:bg-blue-500/40 rounded-t transition-all relative group" style={{ height: `${(pt.marketCap / (company.marketCap * 1.2)) * 100}%` }}>
+                  <div class="flex-1 bg-amber-500/20 hover:bg-amber-500/40 rounded-t transition-all relative group" style={{ height: `${(pt.marketCap / (company.marketCap * 1.2)) * 100}%` }}>
                     <div class="opacity-0 group-hover:opacity-100 absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] p-1 rounded font-mono z-10 whitespace-nowrap">
                       {pt.date}: {formatLargeNumber(pt.marketCap)}
                     </div>
@@ -176,62 +270,92 @@ const jsonLd = {
           </div>
         </div>
 
-        <!-- Similar Companies Peer Comparison -->
-        <div class="space-y-4">
-          <h2 class="text-lg font-bold text-[var(--color-text-primary)]">Similar Peer Companies in {company.sector}</h2>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {similar.map(peer => (
-              <a href={`/companies/${peer.ticker.toLowerCase()}`} class="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] hover:scale-[1.02] transition-all space-y-2 group shadow-xs">
-                <div class="flex items-center gap-3">
-                  <CompanyLogo ticker={peer.ticker} domain={peer.domain} name={peer.name} size={32} client:load />
-                  <div>
-                    <div class="font-bold text-sm text-[var(--color-text-primary)] group-hover:underline">{peer.name}</div>
-                    <div class="text-xs text-[var(--color-text-muted)] font-mono">{peer.ticker}</div>
-                  </div>
-                </div>
-                <div class="pt-2 border-t border-[var(--color-border-subtle)] flex items-center justify-between text-xs font-mono">
-                  <span class="text-[var(--color-text-secondary)]">Cap:</span>
-                  <span class="font-bold text-blue-600 dark:text-blue-400">{formatLargeNumber(peer.marketCap)}</span>
-                </div>
-              </a>
-            ))}
+        <!-- Structured Peer Comparison Matrix -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between border-b border-[var(--color-border)] pb-2">
+            <h2 class="text-lg font-bold text-[var(--color-text-primary)]">Peer Comparison in {company.sector}</h2>
+            <span class="text-xs font-mono text-[var(--color-text-muted)]">Sector Equities</span>
+          </div>
+
+          <div class="overflow-x-auto rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] shadow-xs">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-[var(--color-bg-alt)] border-b border-[var(--color-border)] font-semibold text-[var(--color-text-secondary)]">
+                  <th class="py-2.5 px-3">Rank</th>
+                  <th class="py-2.5 px-3">Company</th>
+                  <th class="py-2.5 px-3 text-right">Market Cap</th>
+                  <th class="py-2.5 px-3 text-right">P/E Ratio</th>
+                  <th class="py-2.5 px-3 text-right">Revenue</th>
+                  <th class="py-2.5 px-3 text-right">Today</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--color-border-subtle)] font-mono">
+                {similar.map(peer => (
+                  <tr key={peer.ticker} class="hover:bg-[var(--color-surface)]/60 transition-colors">
+                    <td class="py-2.5 px-3 font-bold text-[var(--color-text-muted)]">#{peer.rank}</td>
+                    <td class="py-2.5 px-3 font-sans">
+                      <a href={`/companies/${peer.ticker.toLowerCase()}`} class="flex items-center gap-2.5 hover:underline font-bold text-[var(--color-text-primary)]">
+                        <CompanyLogo ticker={peer.ticker} domain={peer.domain} name={peer.name} size={24} client:load />
+                        <span>{peer.name}</span>
+                        <span class="text-[10px] text-[var(--color-text-muted)] uppercase font-mono">({peer.ticker})</span>
+                      </a>
+                    </td>
+                    <td class="py-2.5 px-3 text-right font-bold text-blue-600 dark:text-blue-400">
+                      {formatLargeNumber(peer.marketCap)}
+                    </td>
+                    <td class="py-2.5 px-3 text-right text-[var(--color-text-secondary)]">{peer.peRatio}x</td>
+                    <td class="py-2.5 px-3 text-right text-[var(--color-text-secondary)]">{formatLargeNumber(peer.revenue)}</td>
+                    <td class="py-2.5 px-3 text-right font-bold">
+                      <span class={peer.priceChange1D >= 0 ? 'text-emerald-500' : 'text-rose-500'}>
+                        {peer.priceChange1D >= 0 ? '▲ ' : '▼ '}
+                        {formatPercent(peer.priceChange1D)}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
 
-      <!-- Right Column: Profile Sidebar & AdSlot -->
+      <!-- Right Column: Corporate Metadata Sidebar & AdSlot -->
       <div class="space-y-6">
-        <div class="p-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] space-y-4">
-          <h3 class="font-bold text-sm text-[var(--color-text-primary)] uppercase tracking-wider border-b border-[var(--color-border)] pb-2">
-            Company Quick Stats
+        <div class="p-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] space-y-4 shadow-xs">
+          <h3 class="font-bold text-xs text-[var(--color-text-primary)] uppercase tracking-wider border-b border-[var(--color-border)] pb-2">
+            Corporate Profile Details
           </h3>
-          <div class="space-y-3 text-xs">
+          <div class="space-y-3 text-xs font-sans">
             <div class="flex justify-between py-1 border-b border-[var(--color-border-subtle)]">
-              <span class="text-[var(--color-text-secondary)]">Stock Exchange</span>
-              <span class="font-semibold text-[var(--color-text-primary)]">NASDAQ / NYSE</span>
+              <span class="text-[var(--color-text-secondary)]">Primary Exchange</span>
+              <span class="font-mono font-semibold text-[var(--color-text-primary)]">NASDAQ / NYSE</span>
             </div>
             <div class="flex justify-between py-1 border-b border-[var(--color-border-subtle)]">
               <span class="text-[var(--color-text-secondary)]">Listing Year</span>
-              <span class="font-semibold text-[var(--color-text-primary)]">{company.ipoYear}</span>
+              <span class="font-mono font-semibold text-[var(--color-text-primary)]">{company.ipoYear}</span>
             </div>
             <div class="flex justify-between py-1 border-b border-[var(--color-border-subtle)]">
               <span class="text-[var(--color-text-secondary)]">All-Time High</span>
-              <span class="font-semibold text-[var(--color-text-primary)]">${company.allTimeHigh}</span>
+              <span class="font-mono font-semibold text-[var(--color-text-primary)]">${company.allTimeHigh}</span>
             </div>
             <div class="flex justify-between py-1 border-b border-[var(--color-border-subtle)]">
               <span class="text-[var(--color-text-secondary)]">ATH Drawdown</span>
-              <span class="font-semibold text-rose-500">{athDrawdown}%</span>
+              <span class="font-mono font-semibold text-rose-500">{athDrawdown}%</span>
+            </div>
+            <div class="flex justify-between py-1 border-b border-[var(--color-border-subtle)]">
+              <span class="text-[var(--color-text-secondary)]">Headquarters</span>
+              <span class="font-semibold text-[var(--color-text-primary)]">{getCountryFlag(company.countryCode)} {company.country}</span>
             </div>
             <div class="flex justify-between py-1">
-              <span class="text-[var(--color-text-secondary)]">Official Website</span>
-              <a href={`https://${company.domain}`} target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">
+              <span class="text-[var(--color-text-secondary)]">Official Domain</span>
+              <a href={`https://${company.domain}`} target="_blank" rel="noopener noreferrer" class="font-mono text-blue-500 hover:underline">
                 {company.domain} ↗
               </a>
             </div>
           </div>
         </div>
 
-        <!-- Sidebar 300x250 AdSlot -->
+        <!-- Sidebar AdSlot -->
         <AdSlot variant="sidebar" />
       </div>
     </div>
