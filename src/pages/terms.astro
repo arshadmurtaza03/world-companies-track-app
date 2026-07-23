@@ -1,0 +1,39 @@
+---
+import Layout from '../layouts/Layout.astro';
+import DataDisclaimer from '../components/DataDisclaimer.astro';
+---
+
+<Layout
+  title="Terms of Service — World Companies by Market Cap"
+  description="Terms of Service for World Companies by Market Cap. Usage terms, non-financial advice disclaimer, and data license agreements."
+>
+  <DataDisclaimer />
+
+  <div class="max-w-[800px] mx-auto px-4 py-12 space-y-8">
+    <div class="space-y-2">
+      <h1 class="text-3xl font-black text-[var(--color-text-primary)]">Terms of Service</h1>
+      <p class="text-xs font-mono text-[var(--color-text-muted)]">Last updated: July 23, 2026</p>
+    </div>
+
+    <div class="space-y-6 text-sm text-[var(--color-text-secondary)] leading-relaxed">
+      <p>
+        By accessing this website we assume you accept these terms and conditions. Do not continue to use World Companies by Market Cap if you do not agree to take all of the terms and conditions stated on this page.
+      </p>
+
+      <h2 class="text-lg font-bold text-[var(--color-text-primary)]">1. Financial Disclaimer</h2>
+      <p>
+        The content provided on worldcompaniesmarketcap.com is for informational and educational purposes only and should not be construed as investment, financial, tax, or legal advice. Nothing contained on our site constitutes a solicitation, recommendation, endorsement, or offer to buy or sell any securities or financial instruments.
+      </p>
+
+      <h2 class="text-lg font-bold text-[var(--color-text-primary)]">2. Accuracy of Information</h2>
+      <p>
+        While we strive to provide accurate market capitalization, valuation ratios, earnings, and financial metrics, data is provided on an "as is" and "as available" basis without warranty of any kind. Market prices and foreign exchange rates may be delayed.
+      </p>
+
+      <h2 class="text-lg font-bold text-[var(--color-text-primary)]">3. Intellectual Property</h2>
+      <p>
+        Unless otherwise stated, World Companies by Market Cap and/or its licensors own the intellectual property rights for all material on worldcompaniesmarketcap.com. All intellectual property rights are reserved.
+      </p>
+    </div>
+  </div>
+</Layout>

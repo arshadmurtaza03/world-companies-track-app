@@ -27,7 +27,23 @@ export const RankingTable: React.FC<Props> = ({
   const [currency, setCurrency] = useState<CurrencyCode>('USD');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [infiniteScroll, setInfiniteScroll] = useState<boolean>(false);
+  const [compareTickers, setCompareTickers] = useState<string[]>([]);
   const itemsPerPage = 50;
+
+  const toggleCompare = (ticker: string) => {
+    const upper = ticker.toUpperCase();
+    setCompareTickers(prev => {
+      if (prev.includes(upper)) return prev.filter(t => t !== upper);
+      if (prev.length >= 3) return [...prev.slice(1), upper];
+      return [...prev, upper];
+    });
+  };
+
+  const handleLaunchCompare = () => {
+    if (compareTickers.length > 0) {
+      window.location.href = `/compare?tickers=${compareTickers.join(',')}`;
+    }
+  };
 
   useEffect(() => {
     setCurrency(getSavedCurrency());
@@ -220,6 +236,7 @@ export const RankingTable: React.FC<Props> = ({
         <table className="w-full text-left border-collapse text-sm">
           <thead>
             <tr className="bg-[var(--color-bg-alt)] border-b border-[var(--color-border)] text-xs text-[var(--color-text-secondary)] font-semibold">
+              <th className="py-3 px-3 w-10 text-center">Compare</th>
               <th className="py-3 px-3 w-12 text-center">#</th>
               <th className="py-3 px-3">Company</th>
               <th className="py-3 px-3 text-right">
@@ -258,7 +275,7 @@ export const RankingTable: React.FC<Props> = ({
                 <React.Fragment key={company.ticker}>
                   {isAdRow && (
                     <tr className="bg-[var(--color-bg-alt)]/50">
-                      <td colSpan={8} className="p-4 text-center">
+                      <td colSpan={9} className="p-4 text-center">
                         <div className="border border-dashed border-[var(--color-border)] rounded-lg py-3 text-xs text-[var(--color-text-muted)] bg-[var(--color-surface)]/30">
                           Advertisement Placeholder (728×90 Responsive)
                         </div>
@@ -266,9 +283,20 @@ export const RankingTable: React.FC<Props> = ({
                     </tr>
                   )}
                   <tr className="hover:bg-[var(--color-surface)]/60 transition-colors group">
+                    <td className="py-3.5 px-3 text-center">
+                      <input
+                        type="checkbox"
+                        checked={compareTickers.includes(company.ticker.toUpperCase())}
+                        onChange={() => toggleCompare(company.ticker)}
+                        className="rounded border-[var(--color-border)] text-blue-600 focus:ring-blue-500 cursor-pointer"
+                        title="Select for comparison (up to 3)"
+                      />
+                    </td>
+
                     <td className="py-3.5 px-3 text-center text-xs text-[var(--color-text-muted)] font-mono">
                       {displayRank}
                     </td>
+
 
                     <td className="py-3.5 px-3">
                       <a href={`/companies/${company.ticker.toLowerCase()}`} className="flex items-center gap-3 group-hover:underline">
@@ -400,6 +428,26 @@ export const RankingTable: React.FC<Props> = ({
             className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium cursor-pointer"
           >
             {infiniteScroll ? 'Switch to Standard Pagination' : 'Show All / Infinite Scroll'}
+          </button>
+        </div>
+      )}
+      {/* Floating Compare Action Bar */}
+      {compareTickers.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-[var(--color-surface)] border border-[var(--color-border)] shadow-2xl rounded-2xl px-5 py-3 flex items-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-200">
+          <div className="text-xs font-bold text-[var(--color-text-primary)]">
+            Selected for Comparison: <span className="font-mono text-blue-600 dark:text-blue-400">{compareTickers.join(', ')}</span> ({compareTickers.length}/3)
+          </div>
+          <button
+            onClick={handleLaunchCompare}
+            className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md cursor-pointer transition-transform scale-100 hover:scale-105"
+          >
+            Compare Selected ({compareTickers.length}) →
+          </button>
+          <button
+            onClick={() => setCompareTickers([])}
+            className="text-xs text-[var(--color-text-muted)] hover:text-rose-500 cursor-pointer"
+          >
+            Clear
           </button>
         </div>
       )}

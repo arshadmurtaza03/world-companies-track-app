@@ -1,0 +1,67 @@
+---
+import Layout from '../layouts/Layout.astro';
+import DataDisclaimer from '../components/DataDisclaimer.astro';
+import AdSlot from '../components/AdSlot.astro';
+---
+
+<Layout
+  title="Data Methodology & Calculation Rules — World Companies by Market Cap"
+  description="Learn how market capitalization, earnings, revenue, financial ratios, currency conversions, and stock price changes are calculated and updated."
+>
+  <DataDisclaimer />
+
+  <div class="max-w-[1000px] mx-auto px-4 py-12 space-y-10">
+    <div class="space-y-3">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-semibold">
+        <span>📖 Data Standard</span>
+        <span>•</span>
+        <span>Methodology & Disclosures</span>
+      </div>
+
+      <h1 class="text-3xl md:text-5xl font-black tracking-tight text-[var(--color-text-primary)]">
+        Data Methodology & Calculation Architecture
+      </h1>
+      <p class="text-base text-[var(--color-text-secondary)] leading-relaxed">
+        World Companies by Market Cap aggregates market capitalization, equity valuation metrics, balance sheet statements, and employee metrics across major global stock exchanges.
+      </p>
+    </div>
+
+    <div class="prose prose-slate dark:prose-invert max-w-none space-y-8 text-sm leading-relaxed text-[var(--color-text-secondary)]">
+      <section class="space-y-3">
+        <h2 class="text-xl font-bold text-[var(--color-text-primary)]">1. Market Capitalization Calculation</h2>
+        <p>
+          Market Capitalization is computed continuously by multiplying total outstanding common shares by the current market price per share in local currency, converted into USD at real-time spot foreign exchange rates.
+        </p>
+        <div class="p-4 rounded-xl bg-[var(--color-bg-alt)] border border-[var(--color-border)] font-mono text-xs text-[var(--color-text-primary)]">
+          Market Cap = Total Outstanding Shares × Current Share Price (USD Converted)
+        </div>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="text-xl font-bold text-[var(--color-text-primary)]">2. Currency Conversions</h2>
+        <p>
+          Primary market prices listed in non-USD foreign currencies (e.g. EUR, JPY, GBP, INR, CAD, KRW, CHF, HKD, SAR) are converted dynamically into USD, EUR, GBP, JPY, CAD, INR, or AUD using daily interbank exchange rates.
+        </p>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="text-xl font-bold text-[var(--color-text-primary)]">3. Valuation Ratios & Metrics</h2>
+        <ul class="list-disc pl-5 space-y-2">
+          <li><strong>P/E Ratio (Price-to-Earnings):</strong> Current Market Price divided by Diluted Trailing Twelve Months (TTM) Net Income Per Share.</li>
+          <li><strong>Price-to-Book (P/B):</strong> Total Market Capitalization divided by Total Net Assets (Equity Shareholders' Equity).</li>
+          <li><strong>Operating Margin:</strong> Operating Income (EBIT) divided by TTM Total Revenue, expressed as a percentage.</li>
+          <li><strong>Dividend Yield:</strong> Total annualized dividend payout per share divided by the current share price.</li>
+        </ul>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="text-xl font-bold text-[var(--color-text-primary)]">4. Sector Classification Standard</h2>
+        <p>
+          Companies are categorized into 11 primary sectors based on the Global Industry Classification Standard (GICS): Technology, Consumer Cyclical, Financial Services, Communication Services, Healthcare, Energy, Industrials, Consumer Defensive, Basic Materials, Utilities, and Real Estate.
+        </p>
+      </section>
+    </div>
+
+    <AdSlot variant="banner" />
+  </div>
+</Layout>
