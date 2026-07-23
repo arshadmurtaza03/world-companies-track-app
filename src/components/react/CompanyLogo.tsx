@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getCleanLogoMeta } from '../../lib/logos';
 
 interface Props {
   ticker: string;
@@ -17,50 +18,70 @@ function stringToHslColor(str: string): string {
 }
 
 export const CompanyLogo: React.FC<Props> = ({ ticker, domain, name, size = 32 }) => {
-  const [tier, setTier] = useState<1 | 2 | 3>(domain ? 1 : 2);
+  const [tier, setTier] = useState<1 | 2 | 3 | 4>(1);
 
-  const cleanDomain = domain ? domain.replace(/^https?:\/\//, '').split('/')[0] : '';
-  const primaryUrl = `https://logo.clearbit.com/${cleanDomain}`;
-  const fallback1Url = `https://assets.parqet.com/logos/symbol/${ticker}?format=svg`;
+  const { cleanDomain, cleanTicker } = getCleanLogoMeta(ticker, domain);
+
+  // Production-Safe Fallback Chain:
+  // Tier 1: Google Favicon CDN (64px high-res domain icon)
+  // Tier 2: DuckDuckGo Icon CDN
+  // Tier 3: Parqet Cleaned Symbol SVG
+  // Tier 4: SVG Brand Initials Avatar
+  const tier1Url = `https://www.google.com/s2/favicons?domain=${cleanDomain}&sz=64`;
+  const tier2Url = `https://icons.duckduckgo.com/ip3/${cleanDomain}.ico`;
+  const tier3Url = `https://assets.parqet.com/logos/symbol/${cleanTicker}?format=svg`;
 
   const sizeClass = size === 64 ? 'w-16 h-16 text-xl rounded-xl' : 'w-8 h-8 text-xs rounded-full';
   const pxSize = size;
 
-  const handlePrimaryError = () => {
-    if (tier === 1) setTier(2);
-    else if (tier === 2) setTier(3);
+  const handleImgError = () => {
+    setTier(prev => (prev < 4 ? (prev + 1 as 1 | 2 | 3 | 4) : 4));
   };
 
-  if (tier === 1 && cleanDomain) {
+  if (tier === 1) {
     return (
       <img
-        src={primaryUrl}
+        src={tier1Url}
         alt={`${name} logo`}
         width={pxSize}
         height={pxSize}
-        onError={handlePrimaryError}
-        className={`${sizeClass} object-contain bg-white p-0.5 border border-[var(--color-border)] shadow-xs inline-block shrink-0`}
+        onError={handleImgError}
+        className={`${sizeClass} object-contain bg-white p-1 border border-[var(--color-border)] shadow-xs inline-block shrink-0`}
         loading="lazy"
       />
     );
   }
 
-  if (tier === 2 || (!cleanDomain && tier === 1)) {
+  if (tier === 2) {
     return (
       <img
-        src={fallback1Url}
+        src={tier2Url}
         alt={`${name} logo`}
         width={pxSize}
         height={pxSize}
-        onError={() => setTier(3)}
-        className={`${sizeClass} object-contain bg-white p-0.5 border border-[var(--color-border)] shadow-xs inline-block shrink-0`}
+        onError={handleImgError}
+        className={`${sizeClass} object-contain bg-white p-1 border border-[var(--color-border)] shadow-xs inline-block shrink-0`}
         loading="lazy"
       />
     );
   }
 
-  // Tier 3 Fallback: SVG Text Avatar with deterministic HSL background color
-  const initials = ticker.slice(0, 3).toUpperCase();
+  if (tier === 3) {
+    return (
+      <img
+        src={tier3Url}
+        alt={`${name} logo`}
+        width={pxSize}
+        height={pxSize}
+        onError={handleImgError}
+        className={`${sizeClass} object-contain bg-white p-1 border border-[var(--color-border)] shadow-xs inline-block shrink-0`}
+        loading="lazy"
+      />
+    );
+  }
+
+  // Tier 4 Fallback: SVG Text Avatar with deterministic HSL background color
+  const initials = cleanTicker.slice(0, 3).toUpperCase();
   const bgColor = stringToHslColor(ticker);
 
   return (
