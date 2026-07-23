@@ -1,0 +1,60 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import DataDisclaimer from '../../components/DataDisclaimer.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import RankingTable from '../../components/react/RankingTable';
+import { getUniqueCountries, getAllCompanies } from '../../lib/data';
+import { formatLargeNumber, getCountryFlag } from '../../lib/format';
+
+export function getStaticPaths() {
+  const countries = getUniqueCountries();
+  return countries.map(c => ({
+    params: { countrySlug: c.name.toLowerCase().replace(/\s+/g, '-') },
+    props: { countryInfo: c }
+  }));
+}
+
+const { countrySlug } = Astro.params;
+const { countryInfo } = Astro.props;
+
+const allCompanies = getAllCompanies();
+const filteredCompanies = allCompanies.filter(
+  c => c.country.toLowerCase().replace(/\s+/g, '-') === countrySlug
+);
+
+const countryName = countryInfo?.name || filteredCompanies[0]?.country || 'Country';
+const countryCode = countryInfo?.code || filteredCompanies[0]?.countryCode || 'US';
+const totalCap = filteredCompanies.reduce((acc, c) => acc + c.marketCap, 0);
+---
+
+<Layout
+  title={`Largest Companies in ${countryName} by Market Cap (2026)`}
+  description={`Ranking of top publicly traded companies in ${countryName}. Total aggregate market cap is ${formatLargeNumber(totalCap)} across ${filteredCompanies.length} companies.`}
+>
+  <DataDisclaimer />
+
+  <div class="max-w-[1440px] mx-auto px-4 py-8 space-y-6">
+    <div class="p-6 md:p-8 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <span class="text-4xl md:text-5xl">{getCountryFlag(countryCode)}</span>
+        <div>
+          <h1 class="text-2xl md:text-3xl font-black text-[var(--color-text-primary)]">
+            Largest Companies in {countryName}
+          </h1>
+          <p class="text-xs text-[var(--color-text-secondary)] mt-1 font-mono">
+            {filteredCompanies.length} Tracked Companies • Total Market Cap {formatLargeNumber(totalCap)}
+          </p>
+        </div>
+      </div>
+
+      <a href="/countries" class="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+        ← Back to All Countries
+      </a>
+    </div>
+
+    <!-- Filtered Ranking Table for this country -->
+    <RankingTable client:load companies={filteredCompanies} initialCountry={countryCode} />
+
+    <AdSlot variant="banner" />
+  </div>
+</Layout>

@@ -1,0 +1,56 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import DataDisclaimer from '../../components/DataDisclaimer.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import RankingTable from '../../components/react/RankingTable';
+import { getUniqueSectors, getAllCompanies } from '../../lib/data';
+import { formatLargeNumber } from '../../lib/format';
+
+export function getStaticPaths() {
+  const sectors = getUniqueSectors();
+  return sectors.map(s => ({
+    params: { sectorSlug: s.name.toLowerCase().replace(/\s+/g, '-') },
+    props: { sectorInfo: s }
+  }));
+}
+
+const { sectorSlug } = Astro.params;
+const { sectorInfo } = Astro.props;
+
+const allCompanies = getAllCompanies();
+const filteredCompanies = allCompanies.filter(
+  c => c.sector.toLowerCase().replace(/\s+/g, '-') === sectorSlug
+);
+
+const sectorName = sectorInfo?.name || filteredCompanies[0]?.sector || 'Sector';
+const totalCap = filteredCompanies.reduce((acc, c) => acc + c.marketCap, 0);
+---
+
+<Layout
+  title={`Largest ${sectorName} Companies by Market Cap (2026)`}
+  description={`Ranking of top publicly traded companies in the ${sectorName} sector. Aggregate sector market cap is ${formatLargeNumber(totalCap)}.`}
+>
+  <DataDisclaimer />
+
+  <div class="max-w-[1440px] mx-auto px-4 py-8 space-y-6">
+    <div class="p-6 md:p-8 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-black text-[var(--color-text-primary)]">
+          Largest Companies in {sectorName}
+        </h1>
+        <p class="text-xs text-[var(--color-text-secondary)] mt-1 font-mono">
+          {filteredCompanies.length} Tracked Companies • Sector Value {formatLargeNumber(totalCap)}
+        </p>
+      </div>
+
+      <a href="/sectors" class="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+        ← Back to All Sectors
+      </a>
+    </div>
+
+    <!-- Filtered Ranking Table for this sector -->
+    <RankingTable client:load companies={filteredCompanies} initialSector={sectorName} />
+
+    <AdSlot variant="banner" />
+  </div>
+</Layout>

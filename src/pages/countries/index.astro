@@ -1,0 +1,71 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import DataDisclaimer from '../../components/DataDisclaimer.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import { getUniqueCountries, getAllCompanies } from '../../lib/data';
+import { formatLargeNumber, getCountryFlag } from '../../lib/format';
+
+const countries = getUniqueCountries();
+const totalGlobalCap = getAllCompanies().reduce((sum, c) => sum + c.marketCap, 0);
+---
+
+<Layout
+  title="Market Capitalization by Country — World Companies Directory"
+  description="Explore public companies ranked by country of origin. View aggregate market cap, top corporate listings, and country stock market distributions."
+>
+  <DataDisclaimer />
+
+  <div class="max-w-[1440px] mx-auto px-4 py-8 space-y-8">
+    <div class="space-y-2">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-semibold">
+        <span>🌍 Geographic Breakdown</span>
+        <span>•</span>
+        <span>{countries.length} Nations Represented</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-black tracking-tight text-[var(--color-text-primary)]">
+        Public Companies by Country
+      </h1>
+      <p class="text-sm text-[var(--color-text-secondary)] max-w-2xl">
+        Select a country to view its largest publicly traded enterprises, combined market capitalization, and regional sector leaders.
+      </p>
+    </div>
+
+    <!-- Country Card Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      {countries.map(c => {
+        const percentShare = ((c.totalCap / totalGlobalCap) * 100).toFixed(1);
+        const slug = c.name.toLowerCase().replace(/\s+/g, '-');
+
+        return (
+          <a
+            href={`/countries/${slug}`}
+            class="p-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)] hover:scale-[1.02] hover:border-blue-500 transition-all shadow-xs space-y-4 group"
+          >
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="text-3xl">{getCountryFlag(c.code)}</span>
+                <div>
+                  <div class="font-bold text-base text-[var(--color-text-primary)] group-hover:text-blue-600 transition-colors">
+                    {c.name}
+                  </div>
+                  <div class="text-xs text-[var(--color-text-muted)] font-mono">{c.count} {c.count === 1 ? 'Company' : 'Companies'}</div>
+                </div>
+              </div>
+              <span class="text-xs font-mono font-bold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-2 py-1 rounded-md">
+                {percentShare}%
+              </span>
+            </div>
+
+            <div class="pt-3 border-t border-[var(--color-border-subtle)] flex items-center justify-between text-xs font-mono">
+              <span class="text-[var(--color-text-secondary)]">Total Market Cap:</span>
+              <span class="font-bold text-[var(--color-text-primary)]">{formatLargeNumber(c.totalCap)}</span>
+            </div>
+          </a>
+        );
+      })}
+    </div>
+
+    <AdSlot variant="banner" />
+  </div>
+</Layout>

@@ -1,0 +1,86 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import DataDisclaimer from '../../components/DataDisclaimer.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import { getAllETFs } from '../../lib/data';
+import { formatLargeNumber, formatPercent } from '../../lib/format';
+
+const etfs = getAllETFs();
+const totalAUM = etfs.reduce((sum, e) => sum + e.aum, 0);
+---
+
+<Layout
+  title="Largest ETFs by AUM — Global Exchange Traded Fund Rankings (2026)"
+  description="Explore the world's largest Exchange Traded Funds (ETFs) ranked by Assets Under Management (AUM). Compare expense ratios, asset categories, and prices."
+>
+  <DataDisclaimer />
+
+  <div class="max-w-[1440px] mx-auto px-4 py-8 space-y-6">
+    <div class="space-y-2">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-semibold">
+        <span>📈 Fund Intelligence</span>
+        <span>•</span>
+        <span>Top ETFs by AUM</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-black tracking-tight text-[var(--color-text-primary)]">
+        Largest ETFs by Assets Under Management (AUM)
+      </h1>
+      <p class="text-sm text-[var(--color-text-secondary)] max-w-2xl">
+        Global directory of major Exchange Traded Funds tracking broad market indices, tech growth, bonds, and international developed equities.
+      </p>
+    </div>
+
+    <!-- Summary Stats Bar -->
+    <div class="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] flex flex-wrap items-center justify-between gap-4 text-xs font-mono">
+      <div>
+        <span class="text-[var(--color-text-muted)]">Tracked Funds AUM: </span>
+        <span class="font-bold text-blue-600 dark:text-blue-400 text-sm">{formatLargeNumber(totalAUM)}</span>
+      </div>
+      <div>
+        <span class="text-[var(--color-text-muted)]">Lowest Expense Ratio: </span>
+        <span class="font-bold text-emerald-500">0.03% (VOO, VTI, IVV)</span>
+      </div>
+    </div>
+
+    <!-- ETF Table -->
+    <div class="overflow-x-auto rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] shadow-xs">
+      <table class="w-full text-left border-collapse text-sm">
+        <thead>
+          <tr class="bg-[var(--color-bg-alt)] border-b border-[var(--color-border)] text-xs text-[var(--color-text-secondary)] font-semibold">
+            <th class="py-3 px-3 w-12 text-center">Rank</th>
+            <th class="py-3 px-3">Ticker</th>
+            <th class="py-3 px-3">Fund Name</th>
+            <th class="py-3 px-3 text-right">AUM (Assets)</th>
+            <th class="py-3 px-3 text-right">Expense Ratio</th>
+            <th class="py-3 px-3">Category</th>
+            <th class="py-3 px-3 text-right">NAV Price</th>
+            <th class="py-3 px-3 text-right">24h %</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[var(--color-border-subtle)] font-sans">
+          {etfs.map(etf => (
+            <tr class="hover:bg-[var(--color-surface)]/60 transition-colors">
+              <td class="py-3.5 px-3 text-center font-mono text-xs text-[var(--color-text-muted)]">#{etf.rank}</td>
+              <td class="py-3.5 px-3 font-mono font-bold text-blue-600 dark:text-blue-400">{etf.ticker}</td>
+              <td class="py-3.5 px-3 font-bold text-[var(--color-text-primary)]">{etf.name}</td>
+              <td class="py-3.5 px-3 text-right font-mono font-bold text-[var(--color-text-primary)]">
+                {formatLargeNumber(etf.aum)}
+              </td>
+              <td class="py-3.5 px-3 text-right font-mono text-xs text-emerald-500 font-semibold">
+                {etf.expenseRatio}%
+              </td>
+              <td class="py-3.5 px-3 text-xs text-[var(--color-text-secondary)]">{etf.category}</td>
+              <td class="py-3.5 px-3 text-right font-mono text-xs">${etf.price}</td>
+              <td class={`py-3.5 px-3 text-right font-mono text-xs font-semibold ${etf.priceChange1D >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                {formatPercent(etf.priceChange1D)}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <AdSlot variant="banner" />
+  </div>
+</Layout>
