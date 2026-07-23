@@ -2,35 +2,32 @@
 import Layout from '../../layouts/Layout.astro';
 import DataDisclaimer from '../../components/DataDisclaimer.astro';
 import AdSlot from '../../components/AdSlot.astro';
-import { RankingTable } from '../../components/react/RankingTable';
+import RankingTable from '../../components/react/RankingTable';
 import { getAllCompanies } from '../../lib/data';
+import { formatLargeNumber } from '../../lib/format';
+
 
 const companies = getAllCompanies();
+const totalMarketCap = companies.reduce((acc, c) => acc + c.marketCap, 0);
 ---
 
 <Layout
-  title="Global Company Rankings by Market Cap & Financial Metrics (2026)"
-  description="Master interactive ranking engine for global public companies sorted by Market Cap, Revenue, Earnings, P/E Ratio, Dividend %, and 16 financial metrics."
+  title="Global Stock Market Cap Rankings — Largest Public Companies (2026)"
+  description="Full global stock ranking list by market capitalization, earnings, revenue, employees, P/E ratio, dividend yield, and financial metrics."
 >
   <DataDisclaimer />
 
-  <div class="max-w-[1440px] mx-auto px-4 py-8 space-y-6">
-    <div class="space-y-2">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-semibold">
-        <span>📊 Master Rank Engine</span>
-        <span>•</span>
-        <span>Multi-Metric Sorting</span>
-      </div>
-
-      <h1 class="text-3xl md:text-4xl font-black tracking-tight text-[var(--color-text-primary)]">
-        Largest Public Companies by Market Cap
+  <div class="max-w-[1440px] mx-auto px-4 py-6 space-y-6">
+    <div class="text-center space-y-2 py-4">
+      <h1 class="text-3xl md:text-5xl font-black tracking-tight text-[var(--color-text-primary)]">
+        Global Market Capitalization Rankings
       </h1>
-      <p class="text-sm text-[var(--color-text-secondary)] max-w-3xl">
-        Filter and rank the world's largest companies by financial performance. Switch sorting metrics, select countries or sectors, and download custom table datasets.
+      <p class="text-xs md:text-sm text-[var(--color-text-secondary)] font-mono">
+        Companies: <strong class="text-[var(--color-text-primary)]">{companies.length}</strong> &nbsp;•&nbsp; total market cap: <strong class="text-[var(--color-text-primary)]">{formatLargeNumber(totalMarketCap)}</strong>
       </p>
     </div>
 
-    <!-- Master Ranking Table React Island -->
+    <!-- Hero Product: Core Ranking Table -->
     <RankingTable client:load companies={companies} />
 
     <AdSlot variant="banner" />
