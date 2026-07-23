@@ -1,54 +1,74 @@
 ---
 import { ThemeToggle } from './react/ThemeToggle';
 import { CurrencySwitcher } from './react/CurrencySwitcher';
+import HeaderSearch from './react/HeaderSearch';
+import { getAllCompanies } from '../lib/data';
+import { formatLargeNumber } from '../lib/format';
+
+const companies = getAllCompanies();
+const totalMarketCap = companies.reduce((acc, c) => acc + c.marketCap, 0);
 ---
 
-<header class="sticky top-0 z-40 w-full backdrop-blur-md bg-[var(--color-navbar-bg)] border-b border-[var(--color-navbar-border)] transition-colors">
-  <div class="max-w-[1440px] mx-auto px-4 h-14 flex items-center justify-between gap-4">
-    <!-- Brand Logo -->
-    <a href="/" class="flex items-center gap-2.5 group">
-      <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-base shadow-sm group-hover:scale-105 transition-transform">
-        W
+<header class="sticky top-0 z-40 w-full font-sans">
+  <!-- Top Mini Utility Bar (Competitor-aligned black/dark bar with dynamic dataset stats) -->
+  <div class="bg-slate-950 text-slate-300 text-[11px] font-mono py-1 px-4 border-b border-slate-800">
+    <div class="max-w-[1440px] mx-auto flex items-center justify-between gap-4">
+      <div class="flex items-center gap-2 truncate">
+        <span>Companies: <strong class="text-white font-bold">{companies.length}</strong></span>
+        <span class="text-slate-600">•</span>
+        <span>total market cap: <strong class="text-amber-400 font-bold">{formatLargeNumber(totalMarketCap)}</strong></span>
       </div>
-      <div class="flex flex-col">
-        <span class="font-black tracking-tight text-sm text-[var(--color-text-primary)] leading-none group-hover:text-blue-600 transition-colors">
-          WORLD COMPANIES
-        </span>
-        <span class="text-[10px] font-mono text-[var(--color-text-muted)] tracking-wider">
-          MARKETCAP
-        </span>
+
+      <div class="flex items-center gap-3 shrink-0">
+        <button class="hover:text-white transition-colors cursor-pointer hidden sm:inline">Sign In</button>
+        <span class="text-slate-600 hidden sm:inline">•</span>
+        <span class="hover:text-white transition-colors cursor-pointer hidden sm:inline">🇺🇸 English ▾</span>
+        <span class="text-slate-600 hidden sm:inline">•</span>
+        <CurrencySwitcher client:load />
+        <span class="text-slate-600">•</span>
+        <ThemeToggle client:load />
       </div>
-    </a>
+    </div>
+  </div>
 
-    <!-- Nav Links -->
-    <nav class="hidden md:flex items-center gap-5 text-xs font-semibold text-[var(--color-text-secondary)]">
-      <a href="/ranking/global" class="hover:text-[var(--color-text-primary)] transition-colors">Rankings</a>
-      <a href="/etfs" class="hover:text-[var(--color-text-primary)] transition-colors">ETFs</a>
-      <a href="/countries" class="hover:text-[var(--color-text-primary)] transition-colors">Countries</a>
-      <a href="/sectors" class="hover:text-[var(--color-text-primary)] transition-colors">Sectors</a>
-      <a href="/movers" class="hover:text-[var(--color-text-primary)] transition-colors">Movers</a>
-      <a href="/watchlist" class="hover:text-[var(--color-text-primary)] transition-colors flex items-center gap-1">
-        <span>★ Watchlist</span>
-      </a>
-    </nav>
+  <!-- Main Navbar -->
+  <div class="backdrop-blur-md bg-[var(--color-navbar-bg)] border-b border-[var(--color-navbar-border)] transition-colors">
+    <div class="max-w-[1440px] mx-auto px-4 h-13 flex items-center justify-between gap-4">
+      <!-- Brand Logo + Main Nav Links -->
+      <div class="flex items-center gap-6">
+        <a href="/" class="flex items-center gap-2 group shrink-0">
+          <!-- Competitor-style Orange Bar Chart Icon -->
+          <div class="w-6 h-6 rounded bg-amber-500 flex items-end justify-center p-1 gap-0.5 shadow-xs">
+            <span class="w-1 bg-white rounded-t h-2"></span>
+            <span class="w-1 bg-white rounded-t h-4"></span>
+            <span class="w-1 bg-white rounded-t h-3"></span>
+          </div>
+          <span class="font-bold text-sm text-[var(--color-text-primary)] tracking-tight group-hover:text-amber-500 transition-colors">
+            Global ranking
+          </span>
+        </a>
 
-    <!-- Controls & Cmd+K Search trigger -->
-    <div class="flex items-center gap-2.5">
-      <button
-        type="button"
-        onclick="window.dispatchEvent(new CustomEvent('wcm-open-search'))"
-        class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:border-blue-500 transition-colors cursor-pointer"
-        aria-label="Search companies"
-      >
-        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-        <span class="hidden sm:inline">Search...</span>
-        <kbd class="hidden sm:inline-block px-1 py-0.5 text-[10px] font-mono rounded bg-[var(--color-bg)] border border-[var(--color-border)]">⌘K</kbd>
-      </button>
+        <!-- Category Dropdown Links -->
+        <nav class="hidden lg:flex items-center gap-4 text-xs font-semibold text-[var(--color-text-secondary)]">
+          <a href="/countries" class="hover:text-[var(--color-text-primary)] transition-colors flex items-center gap-1">
+            Ranking by countries ▾
+          </a>
+          <a href="/sectors" class="hover:text-[var(--color-text-primary)] transition-colors flex items-center gap-1">
+            Ranking by categories ▾
+          </a>
+          <a href="/etfs" class="hover:text-[var(--color-text-primary)] transition-colors flex items-center gap-1">
+            ETFs ▾
+          </a>
+          <a href="/watchlist" class="hover:text-[var(--color-text-primary)] transition-colors flex items-center gap-1">
+            ★ Watchlist
+          </a>
+        </nav>
+      </div>
 
-      <CurrencySwitcher client:load />
-      <ThemeToggle client:load />
+      <!-- Right Side: Visible Instant Header Search -->
+      <div class="flex items-center gap-3">
+        <HeaderSearch client:load companies={companies} />
+      </div>
     </div>
   </div>
 </header>
