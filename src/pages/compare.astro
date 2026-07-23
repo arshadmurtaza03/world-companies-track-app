@@ -1,0 +1,38 @@
+---
+import Layout from '../layouts/Layout.astro';
+import DataDisclaimer from '../components/DataDisclaimer.astro';
+import AdSlot from '../components/AdSlot.astro';
+import ComparePage from '../components/react/ComparePage';
+import { getAllCompanies } from '../lib/data';
+
+const companies = getAllCompanies();
+---
+
+<Layout
+  title="Side-by-Side Stock & Market Cap Comparison — World Companies"
+  description="Compare up to 3 global companies side-by-side across market cap, revenue, earnings, P/E ratio, dividend yield, and 16 financial metrics."
+>
+  <DataDisclaimer />
+
+  <div class="max-w-[1440px] mx-auto px-4 py-8 space-y-6">
+    <div class="space-y-2">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-semibold">
+        <span>⚔️ Financial Matrix Comparison</span>
+        <span>•</span>
+        <span>Up to 3 Entities</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-black tracking-tight text-[var(--color-text-primary)]">
+        Side-by-Side Company Comparison
+      </h1>
+      <p class="text-sm text-[var(--color-text-secondary)] max-w-2xl">
+        Compare valuation, operating profitability, debt structures, and workforce sizes side-by-side across 16 core metrics.
+      </p>
+    </div>
+
+    <!-- Compare React Island -->
+    <ComparePage client:load allCompanies={companies} />
+
+    <AdSlot variant="banner" />
+  </div>
+</Layout>

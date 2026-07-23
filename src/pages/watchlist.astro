@@ -1,0 +1,38 @@
+---
+import Layout from '../layouts/Layout.astro';
+import DataDisclaimer from '../components/DataDisclaimer.astro';
+import AdSlot from '../components/AdSlot.astro';
+import WatchlistPage from '../components/react/WatchlistPage';
+import { getAllCompanies } from '../lib/data';
+
+const companies = getAllCompanies();
+---
+
+<Layout
+  title="Personal Stock Watchlist — World Companies by Market Cap"
+  description="Track your favorite public companies locally in your browser. No registration or login required."
+>
+  <DataDisclaimer />
+
+  <div class="max-w-[1440px] mx-auto px-4 py-8 space-y-6">
+    <div class="space-y-2">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-semibold">
+        <span>★ Local Storage Watchlist</span>
+        <span>•</span>
+        <span>Zero Backend / Zero Login</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-black tracking-tight text-[var(--color-text-primary)]">
+        Personal Watchlist
+      </h1>
+      <p class="text-sm text-[var(--color-text-secondary)] max-w-2xl">
+        Your saved equities tracked in real-time. Star any company in global ranking tables to add them here.
+      </p>
+    </div>
+
+    <!-- Watchlist React Island -->
+    <WatchlistPage client:load allCompanies={companies} />
+
+    <AdSlot variant="banner" />
+  </div>
+</Layout>
